@@ -6,9 +6,11 @@ parser.add_argument('--output', required=False)
 parser.add_argument("--medals", action="store_true", required=False)
 parser.add_argument('--country', required=False)
 parser.add_argument('--year', required=False)
+parser.add_argument('--total', action="store_true", required=False)
 
 args = parser.parse_args()
 
+dictionary = dict()
 
 if args.medals:
     output_file = None
@@ -27,6 +29,23 @@ if args.medals:
                         output_file.write(out_line)
 
 
+if args.total:
+    row = 0
+    with open(args.filename, "r") as file:
+        for line in file:
+            data = line.strip().split("\t")
+            if data[9] == args.year:
+                if data[7] not in dictionary:
+                    dictionary[data[7]] = [0, 0, 0]
+                if data[-1] == "Gold":
+                    dictionary[data[7]][0] += 1
+                if data[-1] == "Silver":
+                    dictionary[data[7]][1] += 1
+                if data[-1] == "Bronze":
+                    dictionary[data[7]][2] += 1
+    for country, medals in dictionary.items():
+        print(f"in {args.year} the {country} had won {medals[0]} gold medals, {medals[1]} silver medals, {medals[2]} bronze medals")
+
 
 #task3
 def overall(overall_dict):
@@ -43,7 +62,7 @@ def overall(overall_dict):
             year_max = 0
             medals_count = 0
             years = overall_dict[i].split(';')
-            for j in range(1910,2023):
+            for j in range(1910 ,2023):
                 if years.count(str(j)) > medals_count:
                     medals_count = years.count(str(j))
                     year_max = j
@@ -103,7 +122,7 @@ def interactive():
 
 print(f'{args.overall=}')
 if args.overall:
-    overall()
+    overall(dict())
     
 if args.interactive:
     interactive()
@@ -114,5 +133,6 @@ print(f"{args.filename=}")
 print(f"{args.medals=}")
 print(f"{args.year=}")
 print(f"{args.country=}")
+
 
 print(args)
